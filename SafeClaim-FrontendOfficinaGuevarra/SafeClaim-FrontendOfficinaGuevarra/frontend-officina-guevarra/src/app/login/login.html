@@ -1,0 +1,17 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Accesso Officina</h2>
+    
+    <form (submit)="onLogin()">
+      <input type="email" [(ngModel)]="ngModel" name="email" placeholder="Email" required>
+      <input type="password" [(ngModel)]="psw" name="psw" placeholder="Password" required>
+      <button type="submit">Entra</button>
+    </form>
+
+    <!-- AGGIUNGI QUESTO PEZZO -->
+    <div class="auth-footer">
+      <p>La tua officina non è registrata?</p>
+      <a routerLink="/registrazione" class="btn-secondary">Registra Officina</a>
+    </div>
+  </div>
+</div>

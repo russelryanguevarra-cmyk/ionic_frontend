@@ -1,0 +1,42 @@
+<div class="archivio-container">
+  <header>
+    <h1>📂 Archivio Storico</h1>
+    <p>Elenco degli interventi completati, chiusi o fatturati.</p>
+  </header>
+
+  <div class="table-card">
+    <table class="archivio-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Targa</th>
+          <th>Veicolo</th>
+          <th>Cliente</th>
+          <th>Importo</th>
+          <th>Stato Finale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Usiamo il signal 'archivio' che filtra già i dati nel service -->
+        @for (item of officinaService.archivio(); track item.id) {
+          <tr>
+            <td>#{{ item.id }}</td>
+            <td><span class="plate-mini">{{ item.targa | uppercase }}</span></td>
+            <td>{{ item.modelloVeicolo }}</td>
+            <td>{{ item.proprietario.nome }} {{ item.proprietario.cognome }}</td>
+            <td class="price">€ {{ item.perizia.importoPreventivato }}</td>
+            <td>
+              <span class="status-tag" [attr.data-status]="item.stato">
+                {{ item.stato }}
+              </span>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="empty-msg">Nessun intervento archiviato trovato.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

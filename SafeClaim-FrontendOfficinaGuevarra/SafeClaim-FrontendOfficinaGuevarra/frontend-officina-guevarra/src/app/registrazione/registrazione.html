@@ -1,0 +1,26 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Registra Nuova Officina</h2>
+    <p>Inserisci i dati della tua attività per iniziare.</p>
+
+    <form (submit)="onRegister()">
+      <input type="text" [(ngModel)]="dati.ragione_sociale" name="rs" placeholder="Ragione Sociale" required>
+      
+      <div class="input-row">
+        <input type="text" [(ngModel)]="dati.citta" name="citta" placeholder="Città" required>
+        <input type="text" [(ngModel)]="dati.indirizzo" name="ind" placeholder="Indirizzo" required>
+      </div>
+
+      <input type="tel" [(ngModel)]="dati.telefono" name="tel" placeholder="Telefono" required>
+      <input type="email" [(ngModel)]="dati.email" name="email" placeholder="Email" required>
+      <input type="password" [(ngModel)]="dati.psw" name="psw" placeholder="Password (min. 6 caratteri)" required>
+
+      <button type="submit" class="btn-main">Crea Account</button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Hai già un account?</p>
+      <a routerLink="/login">Torna al Login</a>
+    </div>
+  </div>
+</div>

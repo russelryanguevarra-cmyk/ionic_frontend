@@ -1,0 +1,66 @@
+<!-- NAVBAR: Visibile solo se l'officina è loggata -->
+@if (authService.currentUser()) {
+  <nav class="navbar">
+    <div class="container">
+      <div class="logo">
+        <span class="icon">🔧</span> 
+        <span class="name">{{ authService.currentUser().ragione_sociale }}</span>
+      </div>
+      
+      <div class="nav-links">
+        <a routerLink="/dashboard" routerLinkActive="active">📌 Dashboard</a>
+        <a routerLink="/archivio" routerLinkActive="active">📂 Archivio Storico</a>
+        <button (click)="authService.logout()" class="btn-logout">Esci</button>
+      </div>
+    </div>
+  </nav>
+}
+
+<!-- AREA CONTENUTO: Qui verranno mostrati Login, Registrazione, Dashboard o Archivio -->
+<main class="main-container">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- STYLE MINIMALE (Da mettere nel file app.component.css) -->
+<style>
+  .navbar {
+    background-color: #2d3436;
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .navbar .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+  .logo { font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+  .nav-links { display: flex; gap: 20px; align-items: center; }
+  .nav-links a { 
+    color: #b2bec3; 
+    text-decoration: none; 
+    font-weight: 600; 
+    transition: 0.3s;
+  }
+  .nav-links a.active { color: #fab1a0; border-bottom: 2px solid #fab1a0; }
+  .nav-links a:hover { color: white; }
+  
+  .btn-logout {
+    background: #d63031;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .btn-logout:hover { background: #ff7675; }
+
+  .main-container {
+    min-height: calc(100vh - 70px);
+    background-color: #f4f7f6;
+  }
+</style>

@@ -1,0 +1,62 @@
+.archivio-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+header h1 { color: #2d3436; margin-bottom: 5px; }
+header p { color: #636e72; margin-bottom: 30px; }
+
+.table-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.archivio-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.archivio-table th {
+  background: #f8f9fa;
+  padding: 15px;
+  font-size: 0.8rem;
+  color: #636e72;
+  text-transform: uppercase;
+  border-bottom: 2px solid #eee;
+}
+
+.archivio-table td {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+  color: #2d3436;
+}
+
+.plate-mini {
+  background: #2d3436;
+  color: #f1c40f;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.price { font-weight: bold; color: #27ae60; }
+
+.status-tag {
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #dfe6e9;
+}
+
+.status-tag[data-status="FATTURATA"] { background: #e8f5e9; color: #2e7d32; }
+.status-tag[data-status="CHIUSA"] { background: #f1f2f6; color: #636e72; }
+
+.empty-msg { text-align: center; padding: 50px; color: #b2bec3; }
+tr:hover { background: #fcfcfc; }

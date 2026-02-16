@@ -1,0 +1,82 @@
+<div class="dashboard-container">
+  
+  <header class="main-header">
+    <div class="title-section">
+      <h1>Gestione Officina</h1>
+      <p>Monitoraggio interventi e fatturazione</p>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">In Officina</span>
+        <span class="stat-value">{{ officinaService.inLavorazione().length }}</span>
+      </div>
+      <div class="stat-card warning">
+        <span class="stat-label">In Corso</span>
+        <span class="stat-value">{{ inRiparazione() }}</span>
+      </div>
+      <div class="stat-card success">
+        <span class="stat-label">Pronte</span>
+        <span class="stat-value">{{ pronte() }}</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="search-section">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input 
+        type="text" 
+        placeholder="Cerca per targa o cliente..." 
+        [ngModel]="officinaService.filtroTarga()"
+        (ngModelChange)="officinaService.filtroTarga.set($event)"
+      >
+    </div>
+    <button class="btn-refresh" (click)="officinaService.caricaPratiche()">🔄 Aggiorna</button>
+  </section>
+
+  <main class="cards-grid">
+    @for (p of officinaService.inLavorazione(); track p.id) {
+      <div class="repair-card">
+        <div class="card-status-bar" [attr.data-status]="p.stato"></div>
+        
+        <div class="card-content">
+          <div class="card-top">
+            <span class="plate-number">{{ p.targa | uppercase }}</span>
+            <span class="status-badge" [attr.data-status]="p.stato">{{ p.stato }}</span>
+          </div>
+
+          <h3 class="vehicle-model">{{ p.modelloVeicolo }}</h3>
+          
+          <div class="client-info">
+            <p>👤 <strong>{{ p.proprietario.nome }} {{ p.proprietario.cognome }}</strong></p>
+            <p>📞 {{ p.proprietario.telefono }}</p>
+          </div>
+
+          <div class="damage-report">
+            <p><strong>Danno:</strong> {{ p.perizia.descrizioneDanno }}</p>
+          </div>
+
+          <div class="card-actions">
+            @if (p.stato === 'ASSEGNATA') {
+              <button class="btn btn-primary" (click)="cambiaStato(p.id, 'RICEVUTA')">Ricevi Veicolo</button>
+            }
+            @if (p.stato === 'RICEVUTA') {
+              <button class="btn btn-warning" (click)="cambiaStato(p.id, 'IN_RIPARAZIONE')">Inizia Lavori</button>
+            }
+            @if (p.stato === 'IN_RIPARAZIONE') {
+              <button class="btn btn-success" (click)="cambiaStato(p.id, 'PRONTA')">Lavoro Terminato</button>
+            }
+            @if (p.stato === 'PRONTA') {
+              <button class="btn btn-invoice" (click)="emettiFattura(p.id)">🧾 Emetti Fattura</button>
+            }
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <p>Nessun intervento attivo in questo momento.</p>
+      </div>
+    }
+  </main>
+</div>
