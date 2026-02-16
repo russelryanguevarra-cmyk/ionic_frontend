@@ -1,13 +1,159 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>archivio</ion-title>
+<!-- archivio.component.html -->
+
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      <ion-icon name="folder-open" style="margin-right: 8px;"></ion-icon>
+      Archivio Storico
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">archivio</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <!-- Header con descrizione -->
+  <div class="archivio-header">
+    <h1>
+      <ion-icon name="document-text-outline" color="primary"></ion-icon>
+      Archivio Storico
+    </h1>
+    <ion-text color="medium">
+      <p>Elenco degli interventi completati, chiusi o fatturati.</p>
+    </ion-text>
+  </div>
+
+  <!-- Searchbar per filtrare -->
+  <ion-searchbar 
+    [(ngModel)]="searchTerm" 
+    placeholder="Cerca per targa, veicolo o cliente"
+    animated
+    debounce="300">
+  </ion-searchbar>
+
+  <!-- VERSIONE DESKTOP / TABLET (visibile solo su schermi grandi) -->
+  <ion-card class="desktop-table ion-hide-sm-down">
+    <ion-card-content class="ion-no-padding">
+      <!-- Intestazione tabella -->
+      <ion-grid fixed class="table-header">
+        <ion-row>
+          <ion-col size="1"><strong>ID</strong></ion-col>
+          <ion-col size="1.5"><strong>Targa</strong></ion-col>
+          <ion-col size="2.5"><strong>Veicolo</strong></ion-col>
+          <ion-col size="3"><strong>Cliente</strong></ion-col>
+          <ion-col size="2"><strong>Importo</strong></ion-col>
+          <ion-col size="2"><strong>Stato Finale</strong></ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <!-- Corpo tabella -->
+      <ion-grid fixed class="table-body">
+        @for (item of officinaService.archivio(); track item.id) {
+          <ion-row class="table-row" [routerLink]="['/dettaglio', item.id]">
+            <ion-col size="1" class="id-col">#{{ item.id }}</ion-col>
+            <ion-col size="1.5">
+              <ion-badge color="dark" class="plate-badge">
+                {{ item.targa | uppercase }}
+              </ion-badge>
+            </ion-col>
+            <ion-col size="2.5">{{ item.modelloVeicolo }}</ion-col>
+            <ion-col size="3">{{ item.proprietario.nome }} {{ item.proprietario.cognome }}</ion-col>
+            <ion-col size="2" class="price-col">€ {{ item.perizia.importoPreventivato }}</ion-col>
+            <ion-col size="2">
+              <ion-badge [color]="getStatusColor(item.stato)" class="status-badge">
+                {{ item.stato }}
+              </ion-badge>
+            </ion-col>
+          </ion-row>
+        } @empty {
+          <ion-row class="empty-row">
+            <ion-col size="12" class="ion-text-center ion-padding">
+              <ion-icon name="folder-open-outline" color="medium" style="font-size: 48px;"></ion-icon>
+              <ion-text color="medium">
+                <p>Nessun intervento archiviato trovato.</p>
+              </ion-text>
+            </ion-col>
+          </ion-row>
+        }
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- VERSIONE MOBILE (visibile solo su smartphone) -->
+  <div class="mobile-cards ion-hide-sm-up">
+    @for (item of officinaService.archivio(); track item.id) {
+      <ion-card class="intervento-card" [routerLink]="['/dettaglio', item.id]">
+        <ion-card-header>
+          <ion-card-subtitle>
+            <ion-badge color="primary">#{{ item.id }}</ion-badge>
+            <ion-badge [color]="getStatusColor(item.stato)" class="status-badge">
+              {{ item.stato }}
+            </ion-badge>
+          </ion-card-subtitle>
+          <ion-card-title>
+            <ion-icon name="car" color="primary"></ion-icon>
+            {{ item.modelloVeicolo }}
+          </ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6">
+                <ion-item lines="none" class="ion-no-padding">
+                  <ion-icon name="qr-code" slot="start" color="dark"></ion-icon>
+                  <ion-label>
+                    <p>Targa</p>
+                    <h3><ion-badge color="dark" class="plate-badge-small">{{ item.targa | uppercase }}</ion-badge></h3>
+                  </ion-label>
+                </ion-item>
+              </ion-col>
+              <ion-col size="6">
+                <ion-item lines="none" class="ion-no-padding">
+                  <ion-icon name="person" slot="start" color="dark"></ion-icon>
+                  <ion-label>
+                    <p>Cliente</p>
+                    <h3>{{ item.proprietario.nome }} {{ item.proprietario.cognome }}</h3>
+                  </ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col size="12">
+                <ion-item lines="none" class="ion-no-padding">
+                  <ion-icon name="cash" slot="start" color="success"></ion-icon>
+                  <ion-label>
+                    <p>Importo</p>
+                    <h3 class="price">€ {{ item.perizia.importoPreventivato }}</h3>
+                  </ion-label>
+                </ion-item>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    } @empty {
+      <ion-card class="empty-card">
+        <ion-card-content class="ion-text-center ion-padding">
+          <ion-icon name="folder-open-outline" color="medium" style="font-size: 64px;"></ion-icon>
+          <ion-text color="medium">
+            <p>Nessun intervento archiviato trovato.</p>
+          </ion-text>
+          <ion-button expand="block" color="primary" routerLink="/nuovo-intervento">
+            <ion-icon name="add" slot="start"></ion-icon>
+            Nuovo Intervento
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+
+  <!-- FAB per aggiungere nuovo intervento (mobile) -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="ion-hide-sm-up">
+    <ion-fab-button color="primary" routerLink="/nuovo-intervento">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

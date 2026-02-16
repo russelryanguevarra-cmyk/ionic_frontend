@@ -1,82 +1,228 @@
-<div class="dashboard-container">
-  
-  <header class="main-header">
-    <div class="title-section">
-      <h1>Gestione Officina</h1>
-      <p>Monitoraggio interventi e fatturazione</p>
-    </div>
+<!-- officina-dashboard.component.html -->
+
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      <ion-icon name="construct" style="margin-right: 8px;"></ion-icon>
+      Gestione Officina
+    </ion-title>
     
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-label">In Officina</span>
-        <span class="stat-value">{{ officinaService.inLavorazione().length }}</span>
-      </div>
-      <div class="stat-card warning">
-        <span class="stat-label">In Corso</span>
-        <span class="stat-value">{{ inRiparazione() }}</span>
-      </div>
-      <div class="stat-card success">
-        <span class="stat-label">Pronte</span>
-        <span class="stat-value">{{ pronte() }}</span>
-      </div>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshDashboard()">
+        <ion-icon name="refresh" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="title-section ion-margin-bottom">
+      <h1>Gestione Officina</h1>
+      <ion-text color="medium">
+        <p>Monitoraggio interventi e fatturazione</p>
+      </ion-text>
     </div>
-  </header>
 
-  <section class="search-section">
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input 
-        type="text" 
-        placeholder="Cerca per targa o cliente..." 
-        [ngModel]="officinaService.filtroTarga()"
-        (ngModelChange)="officinaService.filtroTarga.set($event)"
-      >
-    </div>
-    <button class="btn-refresh" (click)="officinaService.caricaPratiche()">🔄 Aggiorna</button>
-  </section>
+    <!-- Stats Cards -->
+    <ion-grid class="stats-grid ion-margin-bottom">
+      <ion-row>
+        <ion-col size="4">
+          <ion-card class="stat-card" button (click)="filterByStatus('ASSEGNATA')">
+            <ion-card-content class="ion-text-center">
+              <ion-icon name="time" color="warning" class="stat-icon"></ion-icon>
+              <ion-label>
+                <p class="stat-label">In Officina</p>
+                <h2 class="stat-value">{{ officinaService.inLavorazione().length }}</h2>
+              </ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
 
-  <main class="cards-grid">
-    @for (p of officinaService.inLavorazione(); track p.id) {
-      <div class="repair-card">
-        <div class="card-status-bar" [attr.data-status]="p.stato"></div>
-        
-        <div class="card-content">
-          <div class="card-top">
-            <span class="plate-number">{{ p.targa | uppercase }}</span>
-            <span class="status-badge" [attr.data-status]="p.stato">{{ p.stato }}</span>
-          </div>
+        <ion-col size="4">
+          <ion-card class="stat-card" button (click)="filterByStatus('IN_RIPARAZIONE')">
+            <ion-card-content class="ion-text-center">
+              <ion-icon name="construct" color="primary" class="stat-icon"></ion-icon>
+              <ion-label>
+                <p class="stat-label">In Corso</p>
+                <h2 class="stat-value">{{ inRiparazione() }}</h2>
+              </ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
 
-          <h3 class="vehicle-model">{{ p.modelloVeicolo }}</h3>
-          
-          <div class="client-info">
-            <p>👤 <strong>{{ p.proprietario.nome }} {{ p.proprietario.cognome }}</strong></p>
-            <p>📞 {{ p.proprietario.telefono }}</p>
-          </div>
+        <ion-col size="4">
+          <ion-card class="stat-card" button (click)="filterByStatus('PRONTA')">
+            <ion-card-content class="ion-text-center">
+              <ion-icon name="checkmark-done" color="success" class="stat-icon"></ion-icon>
+              <ion-label>
+                <p class="stat-label">Pronte</p>
+                <h2 class="stat-value">{{ pronte() }}</h2>
+              </ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 
-          <div class="damage-report">
-            <p><strong>Danno:</strong> {{ p.perizia.descrizioneDanno }}</p>
-          </div>
+  <!-- Search Section -->
+  <div class="search-section ion-margin-bottom">
+    <ion-searchbar
+      [(ngModel)]="searchTerm"
+      (ionInput)="filterInterventi()"
+      placeholder="Cerca per targa o cliente..."
+      animated
+      debounce="300">
+    </ion-searchbar>
+    
+    <ion-button expand="block" fill="outline" (click)="resetFilters()">
+      <ion-icon name="filter" slot="start"></ion-icon>
+      Reset Filtri
+    </ion-button>
+  </div>
 
-          <div class="card-actions">
-            @if (p.stato === 'ASSEGNATA') {
-              <button class="btn btn-primary" (click)="cambiaStato(p.id, 'RICEVUTA')">Ricevi Veicolo</button>
-            }
-            @if (p.stato === 'RICEVUTA') {
-              <button class="btn btn-warning" (click)="cambiaStato(p.id, 'IN_RIPARAZIONE')">Inizia Lavori</button>
-            }
-            @if (p.stato === 'IN_RIPARAZIONE') {
-              <button class="btn btn-success" (click)="cambiaStato(p.id, 'PRONTA')">Lavoro Terminato</button>
-            }
-            @if (p.stato === 'PRONTA') {
-              <button class="btn btn-invoice" (click)="emettiFattura(p.id)">🧾 Emetti Fattura</button>
-            }
-          </div>
-        </div>
-      </div>
-    } @empty {
-      <div class="empty-state">
-        <p>Nessun intervento attivo in questo momento.</p>
-      </div>
-    }
-  </main>
-</div>
+  <!-- Main Cards Grid -->
+  <ion-grid>
+    <ion-row>
+      @for (p of filteredInterventi(); track p.id) {
+        <ion-col size="12" size-md="6" size-lg="4">
+          <ion-card class="repair-card">
+            <!-- Status Bar -->
+            <div class="card-status-bar" [ngClass]="'status-' + p.stato.toLowerCase()"></div>
+            
+            <ion-card-header>
+              <ion-card-subtitle>
+                <ion-badge [color]="getStatusColor(p.stato)" class="status-badge">
+                  {{ p.stato }}
+                </ion-badge>
+                <span class="intervento-id">#{{ p.id }}</span>
+              </ion-card-subtitle>
+              
+              <ion-card-title>
+                <ion-icon name="car" color="primary"></ion-icon>
+                <span class="plate-number">{{ p.targa | uppercase }}</span>
+              </ion-card-title>
+            </ion-card-header>
+
+            <ion-card-content>
+              <!-- Vehicle Model -->
+              <ion-item lines="none" class="ion-no-padding ion-margin-bottom">
+                <ion-icon name="car-sport" slot="start" color="medium"></ion-icon>
+                <ion-label>
+                  <p>Modello</p>
+                  <h3>{{ p.modelloVeicolo }}</h3>
+                </ion-label>
+              </ion-item>
+
+              <!-- Client Info -->
+              <ion-item lines="none" class="ion-no-padding ion-margin-bottom">
+                <ion-icon name="person" slot="start" color="medium"></ion-icon>
+                <ion-label>
+                  <p>Cliente</p>
+                  <h3>{{ p.proprietario.nome }} {{ p.proprietario.cognome }}</h3>
+                </ion-label>
+              </ion-item>
+
+              <ion-item lines="none" class="ion-no-padding ion-margin-bottom">
+                <ion-icon name="call" slot="start" color="medium"></ion-icon>
+                <ion-label>
+                  <p>Telefono</p>
+                  <h3>{{ p.proprietario.telefono }}</h3>
+                </ion-label>
+              </ion-item>
+
+              <!-- Damage Report -->
+              <ion-item lines="none" class="ion-no-padding ion-margin-bottom">
+                <ion-icon name="warning" slot="start" color="danger"></ion-icon>
+                <ion-label class="ion-text-wrap">
+                  <p>Danno</p>
+                  <h3>{{ p.perizia.descrizioneDanno }}</h3>
+                </ion-label>
+              </ion-item>
+
+              <!-- Action Buttons -->
+              <div class="action-buttons">
+                @if (p.stato === 'ASSEGNATA') {
+                  <ion-button expand="block" color="primary" (click)="cambiaStato(p.id, 'RICEVUTA')">
+                    <ion-icon name="arrow-forward" slot="start"></ion-icon>
+                    Ricevi Veicolo
+                  </ion-button>
+                }
+                
+                @if (p.stato === 'RICEVUTA') {
+                  <ion-button expand="block" color="warning" (click)="cambiaStato(p.id, 'IN_RIPARAZIONE')">
+                    <ion-icon name="build" slot="start"></ion-icon>
+                    Inizia Lavori
+                  </ion-button>
+                }
+                
+                @if (p.stato === 'IN_RIPARAZIONE') {
+                  <ion-button expand="block" color="success" (click)="cambiaStato(p.id, 'PRONTA')">
+                    <ion-icon name="checkmark" slot="start"></ion-icon>
+                    Lavoro Terminato
+                  </ion-button>
+                }
+                
+                @if (p.stato === 'PRONTA') {
+                  <ion-button expand="block" color="secondary" (click)="emettiFattura(p.id)">
+                    <ion-icon name="document-text" slot="start"></ion-icon>
+                    Emetti Fattura
+                  </ion-button>
+                }
+              </div>
+
+              <!-- Additional Info -->
+              <div class="card-footer ion-margin-top">
+                <ion-note color="medium">
+                  <ion-icon name="calendar"></ion-icon>
+                  Ultimo aggiornamento: {{ p.dataUltimoAggiornamento | date:'short' }}
+                </ion-note>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      } @empty {
+        <ion-col size="12">
+          <ion-card class="empty-state">
+            <ion-card-content class="ion-text-center ion-padding">
+              <ion-icon name="construct-outline" color="medium" style="font-size: 64px;"></ion-icon>
+              <ion-text color="medium">
+                <h2>Nessun intervento attivo</h2>
+                <p>Non ci sono interventi in corso in questo momento.</p>
+              </ion-text>
+              <ion-button color="primary" routerLink="/nuovo-intervento" class="ion-margin-top">
+                <ion-icon name="add" slot="start"></ion-icon>
+                Nuovo Intervento
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
+
+  <!-- FAB for quick actions -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button color="success" routerLink="/nuovo-intervento">
+        <ion-icon name="car"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button color="warning" routerLink="/ricerca-cliente">
+        <ion-icon name="search"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+</ion-content>
+
+<!-- Pull to refresh -->
+<ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+  <ion-refresher-content></ion-refresher-content>
+</ion-refresher>
